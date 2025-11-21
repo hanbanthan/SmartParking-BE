@@ -3,69 +3,69 @@ import jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
 
 const userSchema = new mongoose.Schema({
-   username: {
-    type: String,  
-    unique: true, 
+  username: {
+    type: String,
+    unique: true,
     required: true
-   },
-   password: {
+  },
+  password: {
     type: String,
     required: true
-   },
-   is_admin: {
+  },
+  is_admin: {
     type: Boolean,
     required: true,
-   },
-   tokens: [{
+  },
+  tokens: [{
     token: {
-        type: String,
-        required: true
+      type: String,
+      required: true
     }
-   }],
+  }],
 })
 
 userSchema.methods.toJSON = function () {
-    const user = this;
-    const userObject = user.toObject();
+  const user = this;
+  const userObject = user.toObject();
 
-    delete userObject.password;
-    delete userObject.tokens;
+  delete userObject.password;
+  delete userObject.tokens;
 
-    return userObject;
+  return userObject;
 }
 
 userSchema.methods.generateAuthToken = async function () {
-    const user = this;
-    const token = jwt.sign({ _id: user._id.toString() }, process.env.JWT_SECRET);
-    user.tokens = user.tokens.concat({ token });
-    await user.save();
-    return token;
+  const user = this;
+  const token = jwt.sign({ _id: user._id.toString() }, process.env.JWT_SECRET);
+  user.tokens = user.tokens.concat({ token });
+  await user.save();
+  return token;
 }
 
 userSchema.statics.findByCredentials = async (username, password) => {
-    const user = await User.findOne({ username });
+  const user = await User.findOne({ username });
 
-    if (!user) {
-        throw new Error('Unable to login');
-    }
+  if (!user) {
+    throw new Error('Unable to login');
+  }
 
-    const isMatch = await bcrypt.compare(password, user.password);
+  const isMatch = await bcrypt.compare(password, user.password);
 
-    if (!isMatch) {
-        throw new Error('Unable to login');
-    }
+  if (!isMatch) {
+    throw new Error('Unable to login');
+  }
 
-    return user;
+  return user;
 }
 
 userSchema.pre('save', async function (next) {
-    const user = this
+  const user = this
 
-    if (user.isModified('password')) {
-        user.password = await bcrypt.hash(user.password, 8)
-    }
+  if (user.isModified('password')) {
+    user.password = await bcrypt.hash(user.password, 8)
+  }
 
-    next()
+  next()
 })
 
 const User = mongoose.model('User', userSchema);
