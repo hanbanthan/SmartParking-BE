@@ -28,7 +28,7 @@ const connectMQTT = (io) => {
             console.log('Updated slot', updatedSlot);
     
             if (updatedSlot) {
-    
+                io.emit('parking_update', updatedSlot);
             }
         } catch (error) {
             console.error('Error processing message', error);
