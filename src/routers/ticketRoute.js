@@ -5,6 +5,9 @@ import {
   getTicket,
   updateTicket,
   deleteTicket,
+  checkoutTicket,
+  reportStolen,
+  calculateTicket,
 } from '../service/ticketService.js'
 import auth from '../middleware/auth.js'
 
@@ -17,3 +20,8 @@ ticketRouter.get(`${urlPrefix}`, auth, listTickets)
 ticketRouter.get(`${urlPrefix}/:id`, auth, getTicket)
 ticketRouter.put(`${urlPrefix}/:id/update`, auth, updateTicket)
 ticketRouter.delete(`${urlPrefix}/:id/delete`, auth, deleteTicket)
+ticketRouter.post(`${urlPrefix}/checkout/:id`, auth, checkoutTicket); 
+ticketRouter.put(`${urlPrefix}/report/:id`, auth, reportStolen); 
+ticketRouter.get(`${urlPrefix}/calculate/:id`, auth, calculateTicket);
+
+export default ticketRouter;

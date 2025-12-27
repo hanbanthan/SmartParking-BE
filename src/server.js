@@ -8,6 +8,7 @@ import dotenv from 'dotenv'
 import { Server } from 'socket.io'
 import connectMQTT from './config/mqtt.js'   
 import http from 'http'
+import ticketRouter from './routers/ticketRoute.js'
 dotenv.config();
 // app config
 
@@ -33,6 +34,7 @@ app.use(cors());
 app.use(userRouter);
 app.use(iotRouter);
 app.use(slotRouter);
+app.use(ticketRouter);
 
 app.get('/', (req, res) => {
     res.send('API is working');
