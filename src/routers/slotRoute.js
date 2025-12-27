@@ -17,3 +17,5 @@ slotRouter.get(`${urlPrefix}`, auth, listSlots)
 slotRouter.get(`${urlPrefix}/:id`, auth, getSlot)
 slotRouter.put(`${urlPrefix}/:id/update`, auth, updateSlot)
 slotRouter.delete(`${urlPrefix}/:id/delete`, auth, deleteSlot)
+
+export default slotRouter;

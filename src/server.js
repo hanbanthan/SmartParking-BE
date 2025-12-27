@@ -3,6 +3,7 @@ import connectDB from './config/mongodb.js'
 import cors from 'cors'
 import userRouter from './routers/userRoute.js'
 import iotRouter from './routers/iotRoute.js'
+import slotRouter from './routers/slotRoute.js'
 import dotenv from 'dotenv' 
 import { Server } from 'socket.io'
 import connectMQTT from './config/mqtt.js'   
@@ -31,6 +32,7 @@ app.use(cors());
 // initalizing routes
 app.use(userRouter);
 app.use(iotRouter);
+app.use(slotRouter);
 
 app.get('/', (req, res) => {
     res.send('API is working');
@@ -41,4 +43,6 @@ io.on('connection', (socket) => {
         console.log('A user disconnected');
     });
 });
-server.listen(port, () => console.log('Server is running on port: ' + port));
+server.listen(port, () => {
+    console.log(`Server is running at http://localhost:${port}`);
+});

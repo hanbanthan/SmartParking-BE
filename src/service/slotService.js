@@ -1,12 +1,12 @@
 import Slot from '../models/slot.js'
-import Response from '../common/utils.js'
+import { Response } from '../common/utils.js';
 
 export const listSlots = async (req, res) => {
   try {
-    const {active} = req?.query
+    const { active } = req?.query
     let query = {}
     if (active) {
-      query.status = {$not: /^inactive$/i}
+      query.status = { $not: /^inactive$/i }
     }
     const slots = await Slot.find(query)
     return res.status(200).json(Response({
@@ -65,20 +65,33 @@ export const createSlot = async (req, res) => {
 
 export const updateSlot = async (req, res) => {
   try {
-    const body = req.body
-    const slotId = req.params.id
-    // Validate
-    await Slot.findOneAndUpdate(slotId, body, {new: true})
-    return res.status(201).json(Response({
+    const body = req.body;
+    const slotId = req.params.id;
+
+    // SỬA DÒNG NÀY: Truyền vào một object { _id: slotId } thay vì chỉ slotId
+    const updatedSlot = await Slot.findOneAndUpdate(
+      { _id: slotId }, // Filter phải là object
+      body, 
+      { new: true }
+    );
+
+    if (!updatedSlot) {
+      return res.status(404).json(Response({
+        message: 'Không tìm thấy ô đỗ xe này',
+        data: null
+      }));
+    }
+
+    return res.status(200).json(Response({
       message: 'Update slot successfully',
-      data: body,
-    }))
+      data: updatedSlot,
+    }));
   } catch (e) {
-    console.log(`Update slot failed: ${e}`)
+    console.log(`Update slot failed: ${e}`);
     return res.status(500).json(Response({
       message: 'Update slot failed',
       data: null,
-    }))
+    }));
   }
 }
 
