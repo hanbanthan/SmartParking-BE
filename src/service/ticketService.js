@@ -29,7 +29,7 @@ export const getTicket = async (req, res) => {
     }
     return res.status(200).json(Response({
       message: 'Get ticket successfully',
-      data: slot,
+      data: ticket,
     }))
   } catch (e) {
     console.log(`Get ticket failed: ${e}`)
@@ -47,7 +47,7 @@ export const createTicket = async (req, res) => {
     const ticket = await Ticket.create(body)
     return res.status(201).json(Response({
       message: 'Create ticket successfully',
-      data: slot,
+      data: ticket,
     }))
   } catch (e) {
     console.log(`Create ticket failed: ${e}`)
