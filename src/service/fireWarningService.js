@@ -236,6 +236,17 @@ export const acknowledgeWarning = async (req, res) => {
         data: null,
       }))
     }
+
+    const mqttClient = await connectMQTT();
+
+    const payload = JSON.stringify({
+      sensorId: sensor.sensorId,
+      action: 'OFF',
+    })
+
+    mqttClient.publish(MQTT_TOPICS.FIRE_BUZZER_CONTROL, payload, 
+      { qos: 1 },
+    );
     
     return res.status(200).json(Response({
       message: 'Fire warning acknowledged successfully',
