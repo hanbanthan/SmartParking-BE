@@ -4,6 +4,7 @@ import cors from 'cors'
 import userRouter from './routers/userRoute.js'
 import iotRouter from './routers/iotRoute.js'
 import slotRouter from './routers/slotRoute.js'
+import fireWarningRouter from './routers/fireWarningRoute.js'
 import dotenv from 'dotenv' 
 import { Server } from 'socket.io'
 import connectMQTT from './config/mqtt.js'   
@@ -35,6 +36,7 @@ app.use(userRouter);
 app.use(iotRouter);
 app.use(slotRouter);
 app.use(ticketRouter);
+app.use(fireWarningRouter);
 
 app.get('/', (req, res) => {
     res.send('API is working');
