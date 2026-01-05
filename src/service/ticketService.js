@@ -111,6 +111,10 @@ export const checkoutTicket = async (req, res) => {
 
     await ticket.save();
 
+    // Payment completed, now security open gate for exit
+    const io = req.app.get('socketio');
+    io.emit('payment_completed', ticket);
+
     return res.status(200).json(Response({
       message: 'Thanh toán thành công',
       data: ticket
