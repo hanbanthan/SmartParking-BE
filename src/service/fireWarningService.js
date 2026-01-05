@@ -1,6 +1,7 @@
 import FireWarning from '../models/fireWarning.js'
 import { Response } from '../common/utils.js'
 import MQTT_TOPICS from '../config/mqttTopics.js';
+import { SOCKET_EVENTS } from '../config/socketEvents.js';
 
 export const listFireSensors = async (req, res) => {
   try {
@@ -118,7 +119,7 @@ export const updateFireSensor = async (req, res) => {
     )
 
     const io = req.app.get('socketio');
-    io.emit('fire_sensor_update', updatedSensor);
+    io.emit(SOCKET_EVENTS.FIRE_SENSOR_UPDATE, updatedSensor);
     
     if (!updatedSensor) {
       return res.status(404).json(Response({

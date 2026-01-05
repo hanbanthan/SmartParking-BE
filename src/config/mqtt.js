@@ -2,6 +2,7 @@ import mqtt from 'mqtt';
 import Slot from '../models/slot.js';
 import FireWarning from '../models/fireWarning.js';
 import MQTT_TOPICS from './mqttTopics.js';
+import { SOCKET_EVENTS } from './socketEvents.js';
 
 const connectMQTT = (io) => {
     const client = mqtt.connect('mqtt://broker.hivemq.com');
@@ -49,7 +50,7 @@ const connectMQTT = (io) => {
                 console.log('Updated slot', updatedSlot);
 
                 if (updatedSlot) {
-                    io.emit('parking_update', updatedSlot);
+                    io.emit(SOCKET_EVENTS.PARKING_UPDATE, updatedSlot);
                 }
             }
 
@@ -77,13 +78,13 @@ const connectMQTT = (io) => {
                     console.log(`DHT11 Sensor ${sensorId}: ${temperature}°C - ${status} (Limit: ${limit}°C)`);
 
                     // Always emit sensor update for frontend display
-                    io.emit('fire_sensor_update', updatedSensor);
+                    io.emit(SOCKET_EVENTS.FIRE_SENSOR_UPDATE, updatedSensor);
 
 
                     if (isWarning) {
                         console.log(`FIRE ALERT TRIGGERED: ${sensorId} - Temperature ${temperature}°C exceeds limit ${limit}°C`);
 
-                        io.emit('fire_warning', {
+                        io.emit(SOCKET_EVENTS.FIRE_WARNING, {
                             sensor: updatedSensor,
                             message: `Fire Alert at Floor ${updatedSensor.location.floor}${updatedSensor.location.column ? ', Column ' + updatedSensor.location.column : ''}${updatedSensor.location.row ? ', Row ' + updatedSensor.location.row : ''}`,
                             temperature: temperature,

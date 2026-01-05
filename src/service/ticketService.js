@@ -1,5 +1,6 @@
 import Ticket from '../models/ticket.js'
 import { Response } from '../common/utils.js';
+import { SOCKET_EVENTS } from '../config/socketEvents.js';
 
 export const listTickets = async (req, res) => {
   try {
@@ -63,7 +64,7 @@ export const updateTicket = async (req, res) => {
     // Validate
     await Ticket.findOneAndUpdate(ticketId, body, { new: true })
     const io = req.app.get('socketio');
-    io.emit('ticket_update', body);
+    io.emit(SOCKET_EVENTS.TICKET_UPDATE, body);
     return res.status(201).json(Response({
       message: 'Update ticket successfully',
       data: body,
@@ -113,7 +114,7 @@ export const checkoutTicket = async (req, res) => {
 
     // Payment completed, now security open gate for exit
     const io = req.app.get('socketio');
-    io.emit('payment_completed', ticket);
+    io.emit(SOCKET_EVENTS.PAYMENT_COMPLETED, ticket);
 
     return res.status(200).json(Response({
       message: 'Thanh toán thành công',
@@ -164,7 +165,7 @@ export const reportStolen = async (req, res) => {
 
     const io = req.app.get('socketio');
     if (io) {
-      io.emit('security_alert', ticket);
+      io.emit(SOCKET_EVENTS.SECURITY_ALERT, ticket);
     }
 
     return res.status(200).json(Response({
@@ -205,7 +206,7 @@ export const resolveTicketWarning = async (req, res) => {
     const io = req.app.get('socketio');
     if (io) {
       // Gửi event để các Admin khác biết vụ việc này đã được xử lý xong
-      io.emit('security_resolved', { ticketId: id });
+      io.emit(SOCKET_EVENTS.SECURITY_RESOLVED, { ticketId: id });
     }
 
     return res.status(200).json(Response({
