@@ -8,6 +8,8 @@ import {
   checkoutTicket,
   reportStolen,
   calculateTicket,
+  getWarningTickets,
+  resolveTicketWarning
 } from '../service/ticketService.js'
 import auth from '../middleware/auth.js'
 
@@ -23,5 +25,7 @@ ticketRouter.delete(`${urlPrefix}/:id/delete`, auth, deleteTicket)
 ticketRouter.post(`${urlPrefix}/checkout/:id`, auth, checkoutTicket); 
 ticketRouter.put(`${urlPrefix}/report/:id`, auth, reportStolen); 
 ticketRouter.get(`${urlPrefix}/calculate/:id`, auth, calculateTicket);
+ticketRouter.get(`${urlPrefix}/warnings/active`, auth, getWarningTickets);
+ticketRouter.put(`${urlPrefix}/warnings/resolve/:id`, auth, resolveTicketWarning);
 
 export default ticketRouter;

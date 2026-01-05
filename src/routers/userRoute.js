@@ -12,7 +12,7 @@ userRouter.post('/api/users', async (req, res ) => {
         const token = await user.generateAuthToken();
         res.status(201).send({ user, token });
     } catch (error) {
-         console.error('❌ User creation error:', error);
+         console.error('User creation error:', error);
         res.status(400).send(error);
     }
 })

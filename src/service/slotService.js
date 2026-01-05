@@ -68,7 +68,6 @@ export const updateSlot = async (req, res) => {
     const body = req.body;
     const slotId = req.params.id;
 
-    // SỬA DÒNG NÀY: Truyền vào một object { _id: slotId } thay vì chỉ slotId
     const updatedSlot = await Slot.findOneAndUpdate(
       { _id: slotId }, // Filter phải là object
       body, 
@@ -81,6 +80,8 @@ export const updateSlot = async (req, res) => {
         data: null
       }));
     }
+    const io = req.app.get('socketio');
+    io.emit('parking_update', updatedSlot);
 
     return res.status(200).json(Response({
       message: 'Update slot successfully',
@@ -96,6 +97,7 @@ export const updateSlot = async (req, res) => {
 }
 
 export const deleteSlot = async (req, res) => {
+  const io = req.app.get('socketio');
   try {
     const slotId = req.params.id
     await Slot.findOneAndDelete(slotId)

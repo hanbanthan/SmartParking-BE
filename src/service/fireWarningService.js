@@ -1,5 +1,6 @@
 import FireWarning from '../models/fireWarning.js'
 import { Response } from '../common/utils.js'
+import MQTT_TOPICS from '../config/mqttTopics.js';
 
 export const listFireSensors = async (req, res) => {
   try {
@@ -115,6 +116,9 @@ export const updateFireSensor = async (req, res) => {
       body, 
       { new: true, runValidators: true }
     )
+
+    const io = req.app.get('socketio');
+    io.emit('fire_sensor_update', updatedSensor);
     
     if (!updatedSensor) {
       return res.status(404).json(Response({
@@ -237,7 +241,7 @@ export const acknowledgeWarning = async (req, res) => {
       }))
     }
 
-    const mqttClient = await connectMQTT();
+    const mqttClient = req.app.get('mqttClient');
 
     const payload = JSON.stringify({
       sensorId: sensor.sensorId,

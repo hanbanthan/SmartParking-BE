@@ -44,7 +44,7 @@ export const createTicket = async (req, res) => {
   try {
     // Chỉ cần userId và slotId từ body
     const { userId, slotId } = req.body;
-    
+
     // Kiểm tra nếu user đã có vé chưa thanh toán
     const existing = await Ticket.findOne({ userId, isPaid: false });
     if (existing) return res.status(400).json(Response({ message: 'Bạn đang có vé chưa hoàn tất' }));
@@ -61,7 +61,9 @@ export const updateTicket = async (req, res) => {
     const body = req.body
     const ticketId = req.params.id
     // Validate
-    await Ticket.findOneAndUpdate(ticketId, body, {new: true})
+    await Ticket.findOneAndUpdate(ticketId, body, { new: true })
+    const io = req.app.get('socketio');
+    io.emit('ticket_update', body);
     return res.status(201).json(Response({
       message: 'Update ticket successfully',
       data: body,
@@ -101,17 +103,17 @@ export const checkoutTicket = async (req, res) => {
     const now = new Date();
     const durationMs = now - new Date(ticket.checkInTime);
     const durationHours = Math.ceil(durationMs / (1000 * 60 * 60));
-    
+
     ticket.checkOutTime = now;
     ticket.totalPrice = durationHours * 5000;
     ticket.isPaid = true;
     ticket.status = 'completed';
-    
+
     await ticket.save();
 
-    return res.status(200).json(Response({ 
-      message: 'Thanh toán thành công', 
-      data: ticket 
+    return res.status(200).json(Response({
+      message: 'Thanh toán thành công',
+      data: ticket
     }));
   } catch (e) {
     return res.status(500).json(Response({ message: 'Lỗi hệ thống khi thanh toán' }));
@@ -128,7 +130,7 @@ export const calculateTicket = async (req, res) => {
     const now = new Date();
     // Tính số giờ đỗ (Làm tròn lên, ít nhất là 1 giờ)
     const durationMs = now - new Date(ticket.checkInTime);
-    const durationHours = Math.ceil(durationMs / (1000 * 60 * 60)); 
+    const durationHours = Math.ceil(durationMs / (1000 * 60 * 60));
     const pricePerHour = 5000; // Có thể tùy chỉnh giá ở đây
     const totalPrice = durationHours * pricePerHour;
 
@@ -150,10 +152,63 @@ export const calculateTicket = async (req, res) => {
 export const reportStolen = async (req, res) => {
   try {
     const { id } = req.params;
-    await Ticket.findByIdAndUpdate(id, { status: 'warning' });
-    // Ở đây có thể gửi email thông báo cho bảo vệ bãi xe
-    return res.status(200).json(Response({ message: 'Đã báo cáo sự cố cho quản lý!' }));
+    const ticket = await Ticket.findByIdAndUpdate(
+      id,
+      { status: 'warning' },
+      { new: true }
+    );
+
+    const io = req.app.get('socketio');
+    if (io) {
+      io.emit('security_alert', ticket);
+    }
+
+    return res.status(200).json(Response({
+      message: 'Đã báo cáo sự cố! Bảo vệ đang kiểm tra.',
+      data: ticket
+    }));
   } catch (e) {
     return res.status(500).json(Response({ message: 'Lỗi báo cáo' }));
   }
 }
+
+export const getWarningTickets = async (req, res) => {
+  try {
+    // Tìm tất cả vé có status là 'warning'
+    const warnings = await Ticket.find({ status: 'warning' })
+      .populate('userId', 'username') // Lấy thêm tên user
+      .populate('slotId', 'name floor'); // Lấy thêm tên ô và tầng
+
+    return res.status(200).json(Response({
+      message: 'Lấy danh sách cảnh báo thành công',
+      data: warnings,
+    }));
+  } catch (e) {
+    return res.status(500).json(Response({ message: 'Lỗi server' }));
+  }
+};
+
+export const resolveTicketWarning = async (req, res) => {
+  try {
+    const { id } = req.params;
+    // Chuyển về 'active' để xe vẫn tiếp tục tính giờ, hoặc 'completed' nếu xe đã thực sự mất/rời bãi
+    const ticket = await Ticket.findByIdAndUpdate(
+      id,
+      {isPaid: true, status: 'completed'},
+      { new: true }
+    );
+
+    const io = req.app.get('socketio');
+    if (io) {
+      // Gửi event để các Admin khác biết vụ việc này đã được xử lý xong
+      io.emit('security_resolved', { ticketId: id });
+    }
+
+    return res.status(200).json(Response({
+      message: 'Đã giải quyết cảnh báo an ninh',
+      data: ticket
+    }));
+  } catch (e) {
+    return res.status(500).json(Response({ message: 'Lỗi hệ thống' }));
+  }
+};
