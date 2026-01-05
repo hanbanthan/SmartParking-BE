@@ -9,6 +9,9 @@ export const MQTT_TOPICS = {
 
     // Fire Warning Control (Server -> ESP32)
     FIRE_BUZZER_CONTROL: 'iot4/parking/device/fire/buzzer/control',
+
+    // Gate
+    GATE_CONTROL: 'iot4/parking/device/gate/control',
 }
 
 export default MQTT_TOPICS
