@@ -141,44 +141,6 @@ export const updateFireSensor = async (req, res) => {
   }
 }
 
-export const updateThreshold = async (req, res) => {
-  try {
-    const sensorId = req.params.id
-    const { limit } = req.body
-    
-    if (limit == undefined) {
-        return res.status(400).json(Response({
-            message: 'Limit is required',
-            data: null,
-        }))
-    }
-    
-    const updatedSensor = await FireWarning.findByIdAndUpdate(
-      sensorId,
-      { limit: Number(limit) },
-      { new: true }
-    )
-    
-    if (!updatedSensor) {
-      return res.status(404).json(Response({
-        message: 'Fire sensor not found',
-        data: null,
-      }))
-    }
-    
-    return res.status(200).json(Response({
-      message: 'Update threshold successfully',
-      data: updatedSensor,
-    }))
-  } catch (e) {
-    console.log(`Update threshold failed: ${e}`)
-    return res.status(500).json(Response({
-      message: 'Update threshold failed',
-      data: null,
-    }))
-  }
-}
-
 export const deleteFireSensor = async (req, res) => {
   try {
     const sensorId = req.params.id

@@ -28,13 +28,6 @@ const fireWarningSchema = new mongoose.Schema({
     default: 'normal',
     required: true
   },
-  
-  // configuration
-  limit: {
-    type: Number,
-    required: true,
-    default: 50 // in Celsius
-  }
 }, {
   timestamps: true // adds createdAt and updatedAt
 })

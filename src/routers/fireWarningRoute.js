@@ -5,7 +5,6 @@ import {
   getFireSensor,
   getFireSensorBySensorId,
   updateFireSensor,
-  updateThreshold,
   deleteFireSensor,
   getActiveWarnings,
   acknowledgeWarning,
@@ -23,7 +22,6 @@ fireWarningRouter.get(`${urlPrefix}/sensors`, auth, listFireSensors)
 fireWarningRouter.get(`${urlPrefix}/sensors/:id`, auth, getFireSensor)
 fireWarningRouter.get(`${urlPrefix}/sensors/by-sensor/:sensorId`, auth, getFireSensorBySensorId)
 fireWarningRouter.put(`${urlPrefix}/sensors/:id/update`, auth, updateFireSensor)
-fireWarningRouter.put(`${urlPrefix}/sensors/:id/threshold`, auth, updateThreshold)
 fireWarningRouter.delete(`${urlPrefix}/sensors/:id/delete`, auth, deleteFireSensor)
 
 // Warning management
