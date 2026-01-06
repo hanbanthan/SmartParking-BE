@@ -161,7 +161,8 @@ export const reportStolen = async (req, res) => {
       id,
       { status: 'warning' },
       { new: true }
-    );
+    ).populate('userId', 'username')   
+    .populate('slotId', 'name floor row column');
 
     const io = req.app.get('socketio');
     if (io) {
@@ -182,7 +183,7 @@ export const getWarningTickets = async (req, res) => {
     // Tìm tất cả vé có status là 'warning'
     const warnings = await Ticket.find({ status: 'warning' })
       .populate('userId', 'username') // Lấy thêm tên user
-      .populate('slotId', 'name floor'); // Lấy thêm tên ô và tầng
+      .populate('slotId', 'name floor row column'); // Lấy thêm tên ô và tầng
 
     return res.status(200).json(Response({
       message: 'Lấy danh sách cảnh báo thành công',
