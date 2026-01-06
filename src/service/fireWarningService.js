@@ -230,7 +230,8 @@ export const acknowledgeWarning = async (req, res) => {
     const sensor = await FireWarning.findByIdAndUpdate(
       sensorId,
       { 
-        status: 'normal'
+        status: 'normal',
+        temperature: 0
       },
       { new: true }
     )
@@ -242,16 +243,19 @@ export const acknowledgeWarning = async (req, res) => {
       }))
     }
 
-    const mqttClient = req.app.get('mqttClient');
+    const io = req.app.get('socketio');
+    io.emit(SOCKET_EVENTS.FIRE_SENSOR_UPDATE, sensor);
 
-    const payload = JSON.stringify({
-      sensorId: sensor.sensorId,
-      action: 'OFF',
-    })
+    // const mqttClient = req.app.get('mqttClient');
 
-    mqttClient.publish(MQTT_TOPICS.FIRE_BUZZER_CONTROL, payload, 
-      { qos: 1 },
-    );
+    // const payload = JSON.stringify({
+    //   sensorId: sensor.sensorId,
+    //   action: 'OFF',
+    // })
+
+    // mqttClient.publish(MQTT_TOPICS.FIRE_BUZZER_CONTROL, payload, 
+    //   { qos: 1 },
+    // );
     
     return res.status(200).json(Response({
       message: 'Fire warning acknowledged successfully',
