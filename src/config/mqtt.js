@@ -56,14 +56,9 @@ const connectMQTT = (io) => {
 
             // Handle DHT11 fire sensor data
             if (topic === MQTT_TOPICS.FIRE_TEMPERATURE) {
-                const { sensorId, temperature } = payload;
+                const { sensorId, temperature, status } = payload;
 
                 let sensor = await FireWarning.findOne({ sensorId: sensorId });
-                const limit = sensor?.limit || 50;
-
-                // Detection - Check if temperature exceeds limit
-                const isWarning = temperature > limit;
-                const status = isWarning ? 'warning' : 'normal';
 
                 const updatedSensor = await FireWarning.findOneAndUpdate(
                     { sensorId: sensorId },
@@ -75,20 +70,19 @@ const connectMQTT = (io) => {
                 );
 
                 if (updatedSensor) {
-                    console.log(`DHT11 Sensor ${sensorId}: ${temperature}°C - ${status} (Limit: ${limit}°C)`);
+                    console.log(`DHT11 Sensor ${sensorId}: ${temperature}°C - ${status}`);
 
                     // Always emit sensor update for frontend display
                     io.emit(SOCKET_EVENTS.FIRE_SENSOR_UPDATE, updatedSensor);
 
 
-                    if (isWarning) {
-                        console.log(`FIRE ALERT TRIGGERED: ${sensorId} - Temperature ${temperature}°C exceeds limit ${limit}°C`);
+                    if (status === 'warning') {
+                        console.log(`FIRE ALERT TRIGGERED: ${sensorId} - Temperature ${temperature}°C`);
 
                         io.emit(SOCKET_EVENTS.FIRE_WARNING, {
                             sensor: updatedSensor,
                             message: `Fire Alert at Floor ${updatedSensor.location.floor}${updatedSensor.location.column ? ', Column ' + updatedSensor.location.column : ''}${updatedSensor.location.row ? ', Row ' + updatedSensor.location.row : ''}`,
                             temperature: temperature,
-                            limit: limit,
                             status: status,
                             timestamp: new Date()
                         });
