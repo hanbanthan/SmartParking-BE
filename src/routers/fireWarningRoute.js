@@ -17,10 +17,10 @@ const fireWarningRouter = new express.Router()
 const urlPrefix = '/api/fire-warning'
 
 // Fire sensor CRUD operations
+fireWarningRouter.get(`${urlPrefix}/sensors/by-sensor/:sensorId`, auth, getFireSensorBySensorId)
 fireWarningRouter.post(`${urlPrefix}/sensors/create`, auth, createFireSensor)
 fireWarningRouter.get(`${urlPrefix}/sensors`, auth, listFireSensors)
 fireWarningRouter.get(`${urlPrefix}/sensors/:id`, auth, getFireSensor)
-fireWarningRouter.get(`${urlPrefix}/sensors/by-sensor/:sensorId`, auth, getFireSensorBySensorId)
 fireWarningRouter.put(`${urlPrefix}/sensors/:id/update`, auth, updateFireSensor)
 fireWarningRouter.delete(`${urlPrefix}/sensors/:id/delete`, auth, deleteFireSensor)
 
